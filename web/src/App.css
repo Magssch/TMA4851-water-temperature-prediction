@@ -1,3 +1,20 @@
 .App {
   text-align: center;
 }
+
+
+.graph {
+  margin: auto;
+  width: 60%;
+  border-color: rgb(52, 56, 56);
+  border-style: solid;
+  border-radius: 15px;
+  padding: 30px;
+  background-color: white;
+}
+
+h1{
+  color: rgb(52, 56, 56);
+  
+
+}
