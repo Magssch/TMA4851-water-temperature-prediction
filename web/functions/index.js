@@ -42,7 +42,7 @@ async function loadModel() {
     // https://js.tensorflow.org/api_node/1.3.1/#node.loadSavedModel
     //file = bucket.ref("saved_model-3.pb");
     objectDetectionModel = await tf.node.loadSavedModel(
-      "saved_model-3.pb",
+      "model",
       ["serve"],
       "serving_default"
     );
@@ -66,6 +66,6 @@ exports.getPred = functions.https.onRequest((request, response) => {
   cors(request, response, () => {
     return loadModel()
       .then((r) => response.send(r.data))
-      .catch((e) => response.sendStatus(e));
+      .catch((e) => {response.sendStatus(e)});
   });
 });
