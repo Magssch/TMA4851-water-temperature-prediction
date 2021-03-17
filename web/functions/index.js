@@ -9,6 +9,8 @@ const tide_url = "http://api.sehavniva.no/tideapi.php";
 
 const frost_url = "https://frost.met.no/observations/v0.jsonld";
 
+const number_of_historic_days = 14;
+
 function add_hours(date, dt) {
     return new Date(date.setHours(date.getHours() + dt));
 }
@@ -31,7 +33,9 @@ async function get_location_forecast() {
 
 async function get_tidevann() {
     try {
-        const from_date = new Date();
+        const from_date = new Date(
+            new Date().setDate(new Date().getDate() - number_of_historic_days)
+        );
         const to_date = new Date(new Date().setDate(new Date().getDate() + 10));
         const { data } = await axios.get(tide_url, {
             params: {
@@ -55,18 +59,21 @@ async function get_tidevann() {
     }
 }
 
-async function get_historic_data() {
+async function get_historic_data(station, elements) {
     try {
         const { data } = await axios.get(frost_url, {
             params: {
-                sources: "SN68050",
+                sources: station, // "SN68010",
                 referencetime:
                     new Date(
-                        new Date().setDate(new Date().getDate() - 6)
+                        new Date().setDate(
+                            new Date().getDate() - number_of_historic_days
+                        )
                     ).toISOString() +
                     "/" +
                     new Date().toISOString(),
-                elements: "air_temperature,relative_humidity,wind_speed",
+                elements: elements, // "air_temperature,relative_humidity,wind_speed,wind_from_direction",
+                timeresolutions: "PT1H",
             },
             headers: {
                 authorization:
@@ -140,7 +147,7 @@ function merge_data(forecast_arr, tide_arr) {
     );
 }
 
-async function parse_data(forecast, tide, historic_data) {
+async function parse_data(forecast, tide, historic_wind, historic_temp_hum) {
     let forecast_arr = await forecast.properties.timeseries.map((el) => {
         return {
             time: el.time,
@@ -158,11 +165,18 @@ async function parse_data(forecast, tide, historic_data) {
     let tide_arr = await tide.tide.locationdata.data.waterlevel.map((el) => {
         return {
             time: parse_tide_date(el.time),
-            tide_pred: el.value,
+            tide_pred: parseFloat(el.value),
         };
     });
 
-    let historic_arr = await historic_data.data.map((el) => {
+    let historic_wind_arr = await historic_wind.data.map((el) => {
+        return {
+            time: el.referenceTime,
+            wind_speed: el.observations[0].value,
+            wind_direction: el.observations[1].value,
+        };
+    });
+    let historic_temp_hum_arr = await historic_temp_hum.data.map((el) => {
         return {
             time: el.referenceTime,
             air_temperature: el.observations[0].value,
@@ -171,12 +185,23 @@ async function parse_data(forecast, tide, historic_data) {
     });
 
     forecast_arr = interpolate_forecast(forecast_arr);
+    forecast_arr.shift();
 
-    let weather_data = merge_data(forecast_arr, tide_arr);
-    weather_data.shift();
-    //weather_data.shift();
+    historic_arr = merge_data(historic_temp_hum_arr, historic_wind_arr);
 
-    return historic_arr.concat(weather_data);
+    let weather_data = merge_data(tide_arr, forecast_arr);
+
+    let data = merge_data(weather_data, historic_arr);
+
+    return data.filter(
+        (el) =>
+            el.tide_pred &&
+            el.time &&
+            el.air_temperature &&
+            el.relative_humidity &&
+            el.wind_speed &&
+            el.wind_direction
+    );
 }
 
 exports.getData = functions.https.onRequest(async (request, response) => {
@@ -184,12 +209,20 @@ exports.getData = functions.https.onRequest(async (request, response) => {
 
     let tide = get_tidevann();
 
-    let historic_data = get_historic_data();
+    let wind_historic_data = await get_historic_data(
+        "SN68010",
+        "wind_speed,wind_from_direction"
+    );
+    let temp_hum_historic_data = get_historic_data(
+        "SN68050",
+        "air_temperature,relative_humidity"
+    );
 
     let weather_data = await parse_data(
         await forecast,
         await tide,
-        await historic_data
+        await wind_historic_data,
+        await temp_hum_historic_data
     );
 
     response.send(weather_data);
