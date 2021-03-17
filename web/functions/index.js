@@ -7,6 +7,8 @@ const forecast_url =
 
 const tide_url = "http://api.sehavniva.no/tideapi.php";
 
+const frost_url = "https://frost.met.no/observations/v0.jsonld";
+
 function add_hours(date, dt) {
     return new Date(date.setHours(date.getHours() + dt));
 }
@@ -50,6 +52,31 @@ async function get_tidevann() {
     } catch (error) {
         console.log("error", error);
         return false;
+    }
+}
+
+async function get_historic_data() {
+    try {
+        const { data } = await axios.get(frost_url, {
+            params: {
+                sources: "SN68050",
+                referencetime:
+                    new Date(
+                        new Date().setDate(new Date().getDate() - 6)
+                    ).toISOString() +
+                    "/" +
+                    new Date().toISOString(),
+                elements: "air_temperature,relative_humidity,wind_speed",
+            },
+            headers: {
+                authorization:
+                    "Basic YzM1MGRlYWMtYjE0My00ZjJjLWE0YWYtMDdlYjFiMTg3OGIzOjljZjk5OWMyLTE1MTAtNGE5ZS1hZDEwLTI4ODYzZGIwM2E0ZA==",
+            },
+        });
+        return data;
+    } catch (error) {
+        console.log("error", error);
+        return error;
     }
 }
 
@@ -113,7 +140,7 @@ function merge_data(forecast_arr, tide_arr) {
     );
 }
 
-async function parse_data(forecast, tide) {
+async function parse_data(forecast, tide, historic_data) {
     let forecast_arr = await forecast.properties.timeseries.map((el) => {
         return {
             time: el.time,
@@ -135,21 +162,35 @@ async function parse_data(forecast, tide) {
         };
     });
 
+    let historic_arr = await historic_data.data.map((el) => {
+        return {
+            time: el.referenceTime,
+            air_temperature: el.observations[0].value,
+            relative_humidity: el.observations[1].value,
+        };
+    });
+
     forecast_arr = interpolate_forecast(forecast_arr);
 
     let weather_data = merge_data(forecast_arr, tide_arr);
     weather_data.shift();
-    weather_data.shift();
+    //weather_data.shift();
 
-    return weather_data;
+    return historic_arr.concat(weather_data);
 }
 
 exports.getData = functions.https.onRequest(async (request, response) => {
-    let forecast = await get_location_forecast();
+    let forecast = get_location_forecast();
 
-    let tide = await get_tidevann();
+    let tide = get_tidevann();
 
-    weather_data = await parse_data(forecast, tide);
+    let historic_data = get_historic_data();
+
+    let weather_data = await parse_data(
+        await forecast,
+        await tide,
+        await historic_data
+    );
 
     response.send(weather_data);
 });
