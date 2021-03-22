@@ -8,13 +8,14 @@
   },
   "emulators": {
     "firestore": {
-      "port": 8081
+      "port": 8082
     }
   },
   "hosting": {
     "public": "build",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
+      { "source": "/api/getPrediction", "function": "getPred" },
       {
         "source": "**",
         "destination": "/index.html"

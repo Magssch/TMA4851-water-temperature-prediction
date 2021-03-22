@@ -1,5 +1,8 @@
 const functions = require("firebase-functions");
-const cors = require("cors")({ origin: true });
+const cors = require("cors")({
+  origin: true,
+  methods: "POST,GET,OPTIONS",
+});
 const axios = require("axios");
 const tf = require("@tensorflow/tfjs-node");
 
@@ -18,14 +21,7 @@ async function loadModel(input) {
   }
   var res = null;
   try {
-    /*var input_data = tf.tensor([
-      [
-        [11, -0.6, 0.13, -0.6, 1.7],
-        [12, 0.4, 0.12, -1.9, -1.9],
-      ],
-    ]);*/
-    var input_data = tf.tensor(input);
-    console.log(input_data.shape);
+    var input_data = tf.tensor([input]);
     var predictions = objectDetectionModel.predict(input_data);
     res = predictions.array().then((array) =>
       JSON.stringify({
@@ -41,7 +37,7 @@ async function loadModel(input) {
 
 exports.getPred = functions.https.onRequest((request, response) => {
   cors(request, response, () => {
-    return loadModel(JSON.parse(request).data)
+    return loadModel(request.body.data)
       .then((r) => response.send(r))
       .catch((e) => {
         response.sendStatus(e);
