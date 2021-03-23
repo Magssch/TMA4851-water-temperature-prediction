@@ -12,7 +12,7 @@
   "engines": {
     "node": "12"
   },
-  "main": "index.js",
+  "main": "index.ts",
   "dependencies": {
     "axios": "^0.21.1",
     "firebase-admin": "^9.2.0",
