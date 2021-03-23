@@ -1,6 +1,9 @@
+const tf = require("@tensorflow/tfjs-node");
+
 function add_hours(date, dt) {
     return new Date(date.setHours(date.getHours() + dt));
 }
+
 function interpolate_forecast(forecast) {
     function _interpolate(from, to, key, dt) {
         return (to[key] - from[key]) * dt + from[key];
@@ -41,6 +44,18 @@ function interpolate_forecast(forecast) {
                     "wind_direction",
                     h / date_diff
                 ),
+                windx: _interpolate(
+                    forecast[i - 1],
+                    forecast[i],
+                    "windx",
+                    h / date_diff
+                ),
+                windy: _interpolate(
+                    forecast[i - 1],
+                    forecast[i],
+                    "windy",
+                    h / date_diff
+                ),
             });
         }
     }
@@ -61,12 +76,52 @@ function merge_data(forecast_arr, tide_arr) {
     );
 }
 
+function format_time(data) {
+    data.forEach((el, idx) => {
+        data[idx].timestamp = new Date(el.time).getTime() / 1e3;
+        data[idx].hour = Math.sin(
+            (2 * Math.PI * data[idx].timestamp) / (24 * 60 * 60)
+        );
+        data[idx].year = Math.sin(
+            (2 * Math.PI * data[idx].timestamp) / (365 * 24 * 60 * 60)
+        );
+    });
+    return data;
+}
+
+function step_series(x, y, t, window_size, skip = 1) {
+    x_stepped = tf.zeros([
+        x.shape[0] - window_size * skip,
+        window_size,
+        x.shape[1],
+    ]);
+    y_stepped = tf.zeros(x.shape[0] - window_size * skip);
+    t_stepped = tf.zeros(x.shape[0] - window_size * skip);
+    for (let i = 0; i < x.shape[0] - window_size * skip; ++i) {
+        for (let j = 0; i < window_size; ++j) {
+            for (let k = 0; k < x.shape[1]; ++i) {
+                x_stepped[(i, j, k)] = x[i + j * skip];
+            }
+        }
+        y_stepped[i] = y[i + window_size * skip];
+        t_stepped[i] = t[i + window_size * skip];
+    }
+    return x_stepped, y_stepped, t_stepped;
+}
+
 module.exports = async function (
     forecast,
     tide,
     historic_wind,
-    historic_temp_hum
+    historic_temp_hum,
+    keys
 ) {
+    let time_now = new Date();
+    console.log("Started parsing");
+    function parse_tide_date(date) {
+        return new Date(date.split("+")[0] + "Z").toISOString();
+    }
+
     let forecast_arr = await forecast.properties.timeseries.map((el) => {
         return {
             time: el.time,
@@ -74,12 +129,24 @@ module.exports = async function (
             relative_humidity: el.data.instant.details.relative_humidity,
             wind_speed: el.data.instant.details.wind_speed,
             wind_direction: el.data.instant.details.wind_from_direction,
+            windx:
+                el.data.instant.details.wind_speed *
+                Math.cos(
+                    (2 *
+                        Math.PI *
+                        el.data.instant.details.wind_from_direction) /
+                        360
+                ),
+            windy:
+                el.data.instant.details.wind_speed *
+                Math.sin(
+                    (2 *
+                        Math.PI *
+                        el.data.instant.details.wind_from_direction) /
+                        360
+                ),
         };
     });
-
-    function parse_tide_date(date) {
-        return new Date(date.split("+")[0] + "Z").toISOString();
-    }
 
     let tide_arr = await tide.tide.locationdata.data.waterlevel.map((el) => {
         return {
@@ -89,10 +156,14 @@ module.exports = async function (
     });
 
     let historic_wind_arr = await historic_wind.data.map((el) => {
+        let wind_speed = (el.observations[0] || {}).value;
+        let wind_direction = (el.observations[1] || {}).value;
         return {
             time: el.referenceTime,
-            wind_speed: el.observations[0].value,
-            wind_direction: el.observations[1].value,
+            wind_speed: wind_speed,
+            wind_direction: wind_direction,
+            windx: wind_speed * Math.cos((2 * Math.PI * wind_direction) / 360),
+            windy: wind_speed * Math.sin((2 * Math.PI * wind_direction) / 360),
         };
     });
     let historic_temp_hum_arr = await historic_temp_hum.data.map((el) => {
@@ -112,7 +183,7 @@ module.exports = async function (
 
     let data = merge_data(weather_data, historic_arr);
 
-    return data.filter(
+    data = await format_time(data).filter(
         (el) =>
             el.tide_pred &&
             el.time &&
@@ -121,4 +192,13 @@ module.exports = async function (
             el.wind_speed &&
             el.wind_direction
     );
+
+    console.log(
+        "Finished! Took ",
+        (new Date() - time_now) / 10 ** 3,
+        "seconds"
+    );
+    return data.map((el) => {
+        return keys.map((key) => el[key]);
+    });
 };

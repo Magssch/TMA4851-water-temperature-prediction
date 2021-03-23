@@ -1,12 +1,12 @@
 const functions = require("firebase-functions");
-const get_data = require("./get_data.js");
-const parse_data = require("./parse_data.js");
 const cors = require("cors")({
     origin: true,
     methods: "POST,GET,OPTIONS",
-  });
-  const tf = require("@tensorflow/tfjs-node");
-  
+});
+const tf = require("@tensorflow/tfjs-node");
+const get_data = require("./get_data.js");
+const parse_data = require("./parse_data.js");
+
 exports.getData = functions.https.onRequest(async (request, response) => {
     let forecast = get_data.location_forecast();
 
@@ -21,11 +21,21 @@ exports.getData = functions.https.onRequest(async (request, response) => {
         "air_temperature,relative_humidity"
     );
 
+    let keys = [
+        "air_temperature",
+        "hour",
+        "relative_humidity",
+        "year",
+        "windx",
+        "windy",
+    ];
+
     let weather_data = await parse_data(
         await forecast,
         await tide,
         await wind_historic_data,
-        await temp_hum_historic_data
+        await temp_hum_historic_data,
+        keys
     );
 
     // TODO: Format data to tensor notation.
