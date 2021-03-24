@@ -8,8 +8,6 @@ const tide_url = "http://api.sehavniva.no/tideapi.php";
 
 const frost_url = "https://frost.met.no/observations/v0.jsonld";
 
-const number_of_historic_days = 15;
-
 module.exports = {
     location_forecast: async function () {
         try {
@@ -26,12 +24,10 @@ module.exports = {
             return false;
         }
     },
-    tidevann: async function () {
+    tidevann: async function (look_back = 15) {
         try {
             const from_date = new Date(
-                new Date().setDate(
-                    new Date().getDate() - number_of_historic_days
-                )
+                new Date().setHours(new Date().getHours() - look_back - 1)
             );
             const to_date = new Date(
                 new Date().setDate(new Date().getDate() + 10)
@@ -57,15 +53,15 @@ module.exports = {
             return false;
         }
     },
-    historic_data: async function (station, elements) {
+    historic_data: async function (station, elements, look_back = 15) {
         try {
             const { data } = await axios.get(frost_url, {
                 params: {
                     sources: station, // "SN68010",
                     referencetime:
                         new Date(
-                            new Date().setDate(
-                                new Date().getDate() - number_of_historic_days
+                            new Date().setHours(
+                                new Date().getHours() - look_back - 1
                             )
                         ).toISOString() +
                         "/" +

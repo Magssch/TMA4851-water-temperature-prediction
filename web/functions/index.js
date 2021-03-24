@@ -36,21 +36,22 @@ async function loadModel(input) {
 
 exports.getPred = functions.https.onRequest(async (request, response) => {
     console.log("Fetching data");
-    const number_of_predictions = 220;
     const look_back = 15;
 
     let forecast = get_data.location_forecast();
 
-    let tide = get_data.tidevann();
+    let tide = get_data.tidevann(look_back);
 
     let wind_historic_data = get_data.historic_data(
         "SN68010",
-        "wind_speed,wind_from_direction"
+        "wind_speed,wind_from_direction",
+        look_back
     );
 
     let temp_hum_historic_data = get_data.historic_data(
         "SN68050",
-        "air_temperature,relative_humidity"
+        "air_temperature,relative_humidity",
+        look_back
     );
 
     let keys = [
@@ -69,14 +70,13 @@ exports.getPred = functions.https.onRequest(async (request, response) => {
         await temp_hum_historic_data,
         keys
     );
-
     let weather_data = values[0];
     let dates = values[1];
 
     let input = [];
     let outputted_dates = [];
 
-    for (let i = 0; i < number_of_predictions; ++i) {
+    for (let i = 0; i < weather_data.length - look_back; ++i) {
         input.push([]);
         outputted_dates.push(dates[dates.length - i - 1]);
         for (
@@ -92,7 +92,7 @@ exports.getPred = functions.https.onRequest(async (request, response) => {
     loadModel(input.reverse(), dates)
         .then((r) => {
             console.log("Prediction done");
-            return response.send(JSON.stringify({ water: r, weather: r }));
+            return response.send(JSON.stringify({ water: r, dates: dates }));
         })
         .catch((e) => {
             response.sendStatus(e);
