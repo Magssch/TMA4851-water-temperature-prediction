@@ -1,7 +1,14 @@
 .App {
   text-align: center;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
 }
 
+.predGraph {
+  margin: auto;
+  width: 100%;
+}
 
 .graph {
   margin: auto;
@@ -13,8 +20,6 @@
   background-color: white;
 }
 
-h1{
+h1 {
   color: rgb(52, 56, 56);
-  
-
 }

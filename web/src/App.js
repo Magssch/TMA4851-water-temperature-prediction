@@ -1,6 +1,8 @@
 import Graph from "./graph";
 import "./App.css";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import Button from "@bit/mui-org.material-ui.button";
+import Fade from "react-reveal/Fade";
 
 function App() {
   const requestPred = () => {
@@ -139,14 +141,38 @@ function App() {
       .then((response) => response.json())
       .then((response) => {
         console.log(response);
+        setPredictionsLoaded(true);
       })
       .catch((err) => console.log(err));
   };
-  useEffect(() => requestPred(), []);
+  //useEffect(() => requestPred(), []);
+  const [predictionsLoaded, setPredictionsLoaded] = useState(false);
+
   return (
     <div className="App">
-      <h1>BadHer</h1>
-      <Graph />
+      <div className="predGraph">
+        {predictionsLoaded ? (
+          <Fade bottom>
+            <h1>BadHer</h1>
+            <br />
+            <Graph />
+          </Fade>
+        ) : (
+          <Fade bottom>
+            <h1>BadHer</h1>
+            <br />
+            <h2>Er det digg å bade i Korsvika imorgen?</h2>
+            <br />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => requestPred()}
+            >
+              Få svaret
+            </Button>
+          </Fade>
+        )}
+      </div>
     </div>
   );
 }
