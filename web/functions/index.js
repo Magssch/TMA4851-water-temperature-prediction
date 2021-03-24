@@ -87,6 +87,7 @@ exports.getPred = functions.https.onRequest(async (request, response) => {
             input[i].push(weather_data[j]);
         }
     }
+
     console.log("Predicting data");
 
     loadModel(input.reverse(), dates)
