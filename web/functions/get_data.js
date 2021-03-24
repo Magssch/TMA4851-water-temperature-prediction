@@ -8,7 +8,7 @@ const tide_url = "http://api.sehavniva.no/tideapi.php";
 
 const frost_url = "https://frost.met.no/observations/v0.jsonld";
 
-const number_of_historic_days = 30;
+const number_of_historic_days = 15;
 
 module.exports = {
     location_forecast: async function () {

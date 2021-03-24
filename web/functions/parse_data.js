@@ -89,26 +89,6 @@ function format_time(data) {
     return data;
 }
 
-function step_series(x, y, t, window_size, skip = 1) {
-    x_stepped = tf.zeros([
-        x.shape[0] - window_size * skip,
-        window_size,
-        x.shape[1],
-    ]);
-    y_stepped = tf.zeros(x.shape[0] - window_size * skip);
-    t_stepped = tf.zeros(x.shape[0] - window_size * skip);
-    for (let i = 0; i < x.shape[0] - window_size * skip; ++i) {
-        for (let j = 0; i < window_size; ++j) {
-            for (let k = 0; k < x.shape[1]; ++i) {
-                x_stepped[(i, j, k)] = x[i + j * skip];
-            }
-        }
-        y_stepped[i] = y[i + window_size * skip];
-        t_stepped[i] = t[i + window_size * skip];
-    }
-    return x_stepped, y_stepped, t_stepped;
-}
-
 module.exports = async function (
     forecast,
     tide,
@@ -131,7 +111,7 @@ module.exports = async function (
             wind_direction: el.data.instant.details.wind_from_direction,
             windx:
                 el.data.instant.details.wind_speed *
-                Math.cos(
+                Math.sin(
                     (2 *
                         Math.PI *
                         el.data.instant.details.wind_from_direction) /
@@ -139,7 +119,7 @@ module.exports = async function (
                 ),
             windy:
                 el.data.instant.details.wind_speed *
-                Math.sin(
+                Math.cos(
                     (2 *
                         Math.PI *
                         el.data.instant.details.wind_from_direction) /
@@ -162,8 +142,8 @@ module.exports = async function (
             time: el.referenceTime,
             wind_speed: wind_speed,
             wind_direction: wind_direction,
-            windx: wind_speed * Math.cos((2 * Math.PI * wind_direction) / 360),
-            windy: wind_speed * Math.sin((2 * Math.PI * wind_direction) / 360),
+            windx: wind_speed * Math.sin((2 * Math.PI * wind_direction) / 360),
+            windy: wind_speed * Math.cos((2 * Math.PI * wind_direction) / 360),
         };
     });
     let historic_temp_hum_arr = await historic_temp_hum.data.map((el) => {
@@ -192,13 +172,16 @@ module.exports = async function (
             el.wind_speed &&
             el.wind_direction
     );
-
+    let dates = data.map((el) => el.time);
     console.log(
         "Finished! Took ",
         (new Date() - time_now) / 10 ** 3,
         "seconds"
     );
-    return data.map((el) => {
-        return keys.map((key) => el[key]);
-    });
+    return [
+        data.map((el) => {
+            return keys.map((key) => el[key]);
+        }),
+        dates,
+    ];
 };
