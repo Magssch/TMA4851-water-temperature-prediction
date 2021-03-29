@@ -1,8 +1,4 @@
 const functions = require("firebase-functions");
-const cors = require("cors")({
-  origin: true,
-  methods: "POST,GET,OPTIONS",
-});
 const tf = require("@tensorflow/tfjs-node");
 const get_data = require("./get_data.js");
 const parse_data = require("./parse_data.js");
@@ -88,8 +84,6 @@ exports.getPred = functions.https.onRequest(async (request, response) => {
       input[i].push(weather_data[j]);
     }
   }
-
-  console.log(outputted_dates);
 
   loadModel(input, dates)
     .then((r) => {
