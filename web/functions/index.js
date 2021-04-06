@@ -85,14 +85,14 @@ exports.getPred = functions.https.onRequest(async (request, response) => {
     }
   }
 
-  loadModel(input, dates)
+  loadModel(input.reverse())
     .then((r) => {
       console.log("Prediction done");
       return response.send(
         JSON.stringify({
           water: r,
           air: weather_data.map((data) => data[0]),
-          dates: dates,
+          dates: outputted_dates,
         })
       );
     })
