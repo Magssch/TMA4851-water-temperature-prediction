@@ -4,7 +4,7 @@ const get_data = require("./get_data.js");
 const parse_data = require("./parse_data.js");
 
 let objectDetectionModel;
-async function loadModel(input) {
+async function load_model(input) {
   // Warm up the model
   if (!objectDetectionModel) {
     // Load the TensorFlow SavedModel through tfjs-node API. You can find more
@@ -28,6 +28,17 @@ async function loadModel(input) {
     console.log(err);
   }
   return res;
+}
+
+function format_input(weather_data, dates, input, outputted_dates, outputted_air_temps, look_back) {
+  for (let i = 0; i < weather_data.length - look_back; ++i) {
+    input.push([]);
+    outputted_dates.push(dates[i + look_back]);
+    outputted_air_temps.push(weather_data[i + look_back][0]);
+    for (let j = i; j < i + look_back; ++j) {
+      input[i].push(weather_data[j]);
+    }
+  }
 }
 
 exports.getPred = functions.https.onRequest(async (request, response) => {
@@ -77,16 +88,16 @@ exports.getPred = functions.https.onRequest(async (request, response) => {
   let outputted_dates = [];
   let outputted_air_temps = [];
 
-  for (let i = 0; i < weather_data.length - look_back; ++i) {
-    input.push([]);
-    outputted_dates.push(dates[i + look_back]);
-    outputted_air_temps.push(weather_data[i + look_back][0]);
-    for (let j = i; j < i + look_back; ++j) {
-      input[i].push(weather_data[j]);
-    }
-  }
+  format_input(
+    weather_data,
+    dates,
+    input,
+    outputted_dates,
+    outputted_air_temps,
+    look_back
+  );
 
-  loadModel(input)
+  load_model(input)
     .then((r) => {
       return response.send(
         JSON.stringify({
