@@ -16,10 +16,10 @@ async function loadModel(input) {
       "serving_default"
     );
   }
-  var res = null;
+  let res = null;
   try {
-    var input_data = tf.tensor(input);
-    var predictions = objectDetectionModel.predict(input_data);
+    let input_data = tf.tensor(input);
+    let predictions = objectDetectionModel.predict(input_data);
     res = predictions
       .array()
       .then((array) => array.map((arr) => arr[arr.length - 1][0]));
@@ -93,7 +93,5 @@ exports.getPred = functions.https.onRequest(async (request, response) => {
         })
       );
     })
-    .catch((e) => {
-      response.sendStatus(e);
-    });
+    .catch((e) => response.sendStatus(e));
 });

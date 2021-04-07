@@ -81,6 +81,16 @@ function add_processed_columns(data) {
   return data;
 }
 
+function objects_to_arrays(data, keys) {
+  return data.map((row) => {
+    return keys.map((key) => row[key]);
+  })
+}
+
+function keys_in_object(data, keys) {
+  return keys.every(key => Object.keys(data).includes(key))
+}
+
 module.exports = async function (
   forecast,
   tide,
@@ -88,6 +98,7 @@ module.exports = async function (
   historic_temp_hum,
   keys
 ) {
+  // Extract values from forecast
   let forecast_arr = await forecast.properties.timeseries.map((row) => {
     return {
       time: row.time,
@@ -101,6 +112,7 @@ module.exports = async function (
   forecast_arr = interpolate_forecast(forecast_arr);
   forecast_arr.shift();
 
+  // Extract values from tide
   let tide_arr = await tide.tide.locationdata.data.waterlevel.map((row) => {
     return {
       time: parse_tide_date(row.time),
@@ -108,6 +120,7 @@ module.exports = async function (
     };
   });
 
+  // Extract values from historic wind data
   let historic_wind_arr = await historic_wind.data.map((row) => {
     let wind_speed = (row.observations[0] || {}).value;
     let wind_direction = (row.observations[1] || {}).value;
@@ -118,6 +131,7 @@ module.exports = async function (
     };
   });
 
+  // Extract values from historic air temperature and humidity data
   let historic_temp_hum_arr = await historic_temp_hum.data.map((row) => {
     return {
       time: row.referenceTime,
@@ -126,27 +140,17 @@ module.exports = async function (
     };
   });
 
-  historic_arr = merge_data(historic_temp_hum_arr, historic_wind_arr);
-
+  // Merge all weather data into one array of objects
+  let historic_arr = merge_data(historic_temp_hum_arr, historic_wind_arr);
   let data = merge_data(tide_arr, forecast_arr);
-
   data = merge_data(data, historic_arr);
 
+  // Add processed columns and filter out rows with missing values
   data = await add_processed_columns(data).filter(
-    (row) =>
-      row.tide_pred &&
-      row.time &&
-      row.air_temperature &&
-      row.relative_humidity &&
-      row.wind_speed &&
-      row.wind_direction
+    (row) => keys_in_object(row, keys)
   );
+
   let dates = data.map((row) => row.time);
 
-  return [
-    data.map((row) => {
-      return keys.map((key) => row[key]);
-    }),
-    dates,
-  ];
+  return [objects_to_arrays(data, keys), dates];
 };
