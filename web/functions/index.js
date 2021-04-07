@@ -72,26 +72,24 @@ exports.getPred = functions.https.onRequest(async (request, response) => {
 
   let input = [];
   let outputted_dates = [];
+  let outputted_air_temps = [];
 
   for (let i = 0; i < weather_data.length - look_back; ++i) {
     input.push([]);
-    outputted_dates.push(dates[i]);
-    for (
-      let j = weather_data.length - look_back - i;
-      j < weather_data.length - i;
-      ++j
-    ) {
+    outputted_dates.push(dates[i + look_back]);
+    outputted_air_temps.push(weather_data[i + look_back][0]);
+    for (let j = i; j < i + look_back; ++j) {
       input[i].push(weather_data[j]);
     }
   }
 
-  loadModel(input.reverse())
+  loadModel(input)
     .then((r) => {
       console.log("Prediction done");
       return response.send(
         JSON.stringify({
           water: r,
-          air: weather_data.map((data) => data[0]),
+          air: outputted_air_temps,
           dates: outputted_dates,
         })
       );
