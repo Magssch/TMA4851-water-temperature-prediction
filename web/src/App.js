@@ -20,7 +20,7 @@ function App() {
       .then((response) => response.json())
       .then((response) => {
         console.log(response);
-        setPredictedWaterTemp(response.water);
+        setPredictedWaterTemps(response.water);
         setPredictedAirTemps(response.air);
         setPredictionsLoaded(true);
         setLoading(false);
@@ -30,7 +30,7 @@ function App() {
   //useEffect(() => requestPred(), []);
   const [loading, setLoading] = useState(false);
   const [predictionsLoaded, setPredictionsLoaded] = useState(false);
-  const [predictedWaterTemp, setPredictedWaterTemp] = useState(0);
+  const [predictedWaterTemps, setPredictedWaterTemps] = useState([]);
   const [predictedAirTemps, setPredictedAirTemps] = useState([]);
 
   return (
@@ -41,7 +41,7 @@ function App() {
         </Fade>
         {predictionsLoaded ? (
           <Fade bottom>
-            <Graph air={predictedAirTemps} water={predictedWaterTemp} />
+            <Graph air={predictedAirTemps} water={predictedWaterTemps} />
           </Fade>
         ) : (
           <>

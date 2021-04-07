@@ -17,20 +17,28 @@ async function load_model(input) {
     );
   }
   let res = null;
+
   try {
     let input_data = tf.tensor(input);
     let predictions = objectDetectionModel.predict(input_data);
-    res = predictions
-      .array()
-      .then((array) => array.map((arr) => arr[arr.length - 1][0]));
-    console.log(res);
+
+    res = predictions.array().then((array) => {
+      return array.map((arr) => arr[0]);
+    });
   } catch (err) {
     console.log(err);
   }
   return res;
 }
 
-function format_input(weather_data, dates, input, outputted_dates, outputted_air_temps, look_back) {
+function format_input(
+  weather_data,
+  dates,
+  input,
+  outputted_dates,
+  outputted_air_temps,
+  look_back
+) {
   for (let i = 0; i < weather_data.length - look_back; ++i) {
     input.push([]);
     outputted_dates.push(dates[i + look_back]);
@@ -41,9 +49,13 @@ function format_input(weather_data, dates, input, outputted_dates, outputted_air
   }
 }
 
+function min_max_inverse_transform(scaled_value, min, max) {
+  return scaled_value * (max - min) + min;
+}
+
 exports.getPred = functions.https.onRequest(async (request, response) => {
   console.log("Fetching data");
-  const look_back = 15;
+  const look_back = 20;
 
   let wind_forecast = get_data.forecast(63.446521, 10.336418);
 
@@ -67,9 +79,9 @@ exports.getPred = functions.https.onRequest(async (request, response) => {
     "air_temperature",
     "hour",
     "relative_humidity",
-    "year",
     "windx",
     "windy",
+    "month",
   ];
 
   let values = await parse_data(
@@ -97,12 +109,29 @@ exports.getPred = functions.https.onRequest(async (request, response) => {
     look_back
   );
 
+  /*
+[ 3.60000000e+00 -6.00000000e+00  2.90000000e+01  0.00000000e+00
+1.00000000e-01  1.00000000e+00  5.20000000e+00  1.29000000e+01
+1.56036806e+09 -9.99999736e-01 -9.99999877e-01  6.00000000e-09
+-3.55967478e+00 -2.85594248e+00]
+
+[2.14000000e+01 3.21000000e+01 1.00000000e+02 6.40000000e+00
+4.40000000e+00 3.60000000e+02 3.53400000e+02 3.44700000e+02
+1.60677816e+09 9.99999989e-01 1.31896163e-01 1.10000000e-08
+3.47686270e+00 3.20000000e+00]
+*/
+  // water_temperature	air_temperature	relative_humidity	rainfall	wind_speed	wind_direction	tide_obs	tide_pred	timestamp	hour	year	month	windx	windy
+
   load_model(input)
     .then((r) => {
       return response.send(
         JSON.stringify({
-          water: r,
-          air: outputted_air_temps,
+          water: r
+            .slice(look_back, look_back + 73)
+            .map((value) => min_max_inverse_transform(value, 3.6, 2.14e1)),
+          air: outputted_air_temps
+            .slice(0, 73)
+            .map((row) => min_max_inverse_transform(row, -6.0, 3.21e1)),
           dates: outputted_dates,
         })
       );
