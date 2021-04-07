@@ -9,12 +9,12 @@ const tide_url = "http://api.sehavniva.no/tideapi.php";
 const frost_url = "https://frost.met.no/observations/v0.jsonld";
 
 module.exports = {
-  location_forecast: async function () {
+  forecast: async function (lat, lon) {
     try {
       const { data } = await axios.get(forecast_url, {
         params: {
-          lat: 63.45039,
-          lon: 10.43387,
+          lat: lat,
+          lon: lon,
           altitude: 10,
         },
       });
@@ -51,7 +51,7 @@ module.exports = {
       return false;
     }
   },
-  historic_data: async function (station, elements, look_back = 15) {
+  historic: async function (station, elements, look_back = 15) {
     try {
       const { data } = await axios.get(frost_url, {
         params: {

@@ -34,17 +34,19 @@ exports.getPred = functions.https.onRequest(async (request, response) => {
   console.log("Fetching data");
   const look_back = 15;
 
-  let forecast = get_data.location_forecast();
+  let wind_forecast = get_data.forecast(63.446521, 10.336418);
+
+  let temp_hum_forecast = get_data.forecast(63.442876, 10.442747);
 
   let tide = get_data.tidevann(look_back);
 
-  let wind_historic_data = get_data.historic_data(
+  let wind_historic_data = get_data.historic(
     "SN68010",
     "wind_speed,wind_from_direction",
     look_back
   );
 
-  let temp_hum_historic_data = get_data.historic_data(
+  let temp_hum_historic_data = get_data.historic(
     "SN68050",
     "air_temperature,relative_humidity",
     look_back
@@ -60,7 +62,8 @@ exports.getPred = functions.https.onRequest(async (request, response) => {
   ];
 
   let values = await parse_data(
-    await forecast,
+    await wind_forecast,
+    await temp_hum_forecast,
     await tide,
     await wind_historic_data,
     await temp_hum_historic_data,

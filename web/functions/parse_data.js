@@ -52,11 +52,11 @@ function interpolate_forecast(forecast) {
   return new_forecast;
 }
 
-function merge_data(forecast_arr, tide_arr) {
-  return forecast_arr.map((row_1) =>
+function merge_data(arr_1, arr_2) {
+  return arr_1.map((row_1) =>
     Object.assign(
       row_1,
-      tide_arr.find(
+      arr_2.find(
         (row_2) =>
           new Date(row_2.time).toISOString() ===
           new Date(row_1.time).toISOString()
@@ -92,23 +92,33 @@ function keys_in_object(data, keys) {
 }
 
 module.exports = async function (
-  forecast,
+  wind_forecast,
+  temp_hum_forecast,
   tide,
   historic_wind,
   historic_temp_hum,
   keys
 ) {
-  // Extract values from forecast
-  let forecast_arr = await forecast.properties.timeseries.map((row) => {
+  // Extract values from wind forecast
+  let wind_forecast_arr = await wind_forecast.properties.timeseries.map((row) => {
     return {
       time: row.time,
-      air_temperature: row.data.instant.details.air_temperature,
-      relative_humidity: row.data.instant.details.relative_humidity,
       wind_speed: row.data.instant.details.wind_speed,
       wind_direction: row.data.instant.details.wind_from_direction,
     };
   });
 
+  // Extract values from air temperature and humidity forecast
+  let temp_hum_forecast_arr = await temp_hum_forecast.properties.timeseries.map((row) => {
+    return {
+      time: row.time,
+      air_temperature: row.data.instant.details.air_temperature,
+      relative_humidity: row.data.instant.details.relative_humidity,
+    };
+  });
+
+  // Merge all forecast data and interpolate
+  let forecast_arr = merge_data(wind_forecast_arr, temp_hum_forecast_arr)
   forecast_arr = interpolate_forecast(forecast_arr);
   forecast_arr.shift();
 
