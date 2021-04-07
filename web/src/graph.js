@@ -29,7 +29,13 @@ const Graph = ({ air, water }) => {
 
   return (
     <div className="graph">
-      <Line data={data} />
+      <Line
+        data={data}
+        options={{
+          responsive: true,
+          maintainAspectRatio: false,
+        }}
+      />
     </div>
   );
 };
