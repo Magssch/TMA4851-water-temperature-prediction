@@ -85,7 +85,6 @@ exports.getPred = functions.https.onRequest(async (request, response) => {
 
   loadModel(input)
     .then((r) => {
-      console.log("Prediction done");
       return response.send(
         JSON.stringify({
           water: r,
