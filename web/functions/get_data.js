@@ -13,9 +13,9 @@ module.exports = {
     try {
       const { data } = await axios.get(forecast_url, {
         params: {
-          lat: 63.4,
-          lon: 10.4,
-          altitude: 0,
+          lat: 63.45039,
+          lon: 10.43387,
+          altitude: 10,
         },
       });
       return data;
