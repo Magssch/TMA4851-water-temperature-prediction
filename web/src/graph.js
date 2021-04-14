@@ -12,14 +12,14 @@ const Graph = ({ air, water }) => {
     datasets: [
       {
         label: "Badetemperatur",
-        data: water,
+        data: water.map(num => num.toFixed(2)),
         backgroundColor: "rgb(255, 160, 122)",
         borderColor: "rgb(255, 160, 122)",
         fill: false,
       },
       {
         label: "Lufttemperatur",
-        data: air,
+        data: air.map(num => num.toFixed(2)),
         backgroundColor: "rgb(176, 196, 222)",
         borderColor: "rgb(176, 196, 222)",
         fill: false,
