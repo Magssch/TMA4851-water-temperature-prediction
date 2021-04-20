@@ -62,7 +62,7 @@ exports.getPred = functions
   .runWith(runtimeOpts)
   .https.onRequest(async (request, response) => {
     console.log("Fetching data");
-    const look_back = 20;
+    const look_back = 30;
 
     let wind_forecast = get_data.forecast(63.446521, 10.336418);
 
@@ -88,7 +88,7 @@ exports.getPred = functions
       "relative_humidity",
       "windx",
       "windy",
-      "month",
+      //"month",
     ];
 
     let values = await parse_data(

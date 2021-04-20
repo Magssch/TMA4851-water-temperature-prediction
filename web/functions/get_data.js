@@ -24,7 +24,7 @@ module.exports = {
       return false;
     }
   },
-  tidevann: async function (look_back = 20) {
+  tidevann: async function (look_back = 30) {
     try {
       const from_date = new Date(
         new Date().setHours(new Date().getHours() - look_back)
@@ -51,7 +51,7 @@ module.exports = {
       return false;
     }
   },
-  historic: async function (station, elements, look_back = 20) {
+  historic: async function (station, elements, look_back = 30) {
     try {
       const { data } = await axios.get(frost_url, {
         params: {
