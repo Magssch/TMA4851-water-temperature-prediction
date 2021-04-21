@@ -135,7 +135,7 @@ function App() {
         <div
           style={{
             justifySelf: "flex-end",
-            margin: "2.5rem auto",
+            margin: "auto auto 2.5rem auto",
             maxWidth: "80%",
           }}
         >
