@@ -13,6 +13,7 @@
 .graph {
   margin: auto;
   width: 75%;
+  color: rgb(52, 56, 56);
   border-color: rgb(52, 56, 56);
   border-style: solid;
   border-radius: 15px;
