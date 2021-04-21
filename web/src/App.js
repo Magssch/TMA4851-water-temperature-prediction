@@ -38,7 +38,7 @@ function App() {
       predictedWaterTemps.reduce((sum, temp) => sum + temp) /
       predictedWaterTemps.length;
 
-    setTimeout(() => setShowGraph(true), 3500);
+    //setTimeout(() => setShowGraph(true), 35000);
 
     if (avgTemp < 10) {
       return "Det vil være ganske kaldt i vannet! 🥶";
@@ -51,46 +51,54 @@ function App() {
 
   return (
     <div className="App">
+      <Fade top>
+        <h1
+          style={{
+            justifySelf: "flex-start",
+            margin: "3rem auto 2rem auto",
+            maxWidth: "80%",
+          }}
+        >
+          BadHer BETA
+        </h1>
+      </Fade>
       <div className="predGraph">
-        <Fade top appear={true}>
-          <h1>BadHer BETA</h1>
-        </Fade>
         {predictionsLoaded ? (
           <>
-            {!showGraph && (
-              <Fade bottom when={!showGraph} appear={true} opposite={true}>
-                <p>
-                  <br />
-                  <p style={{ fontSize: "2.5rem", fontWeight: "bold" }}>
-                    {getTempMessage()}
-                  </p>
-                  <br />
-                  <br />
-                  <p
-                    style={{
-                      fontSize: "1.5rem",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => setShowGraph(true)}
-                  >
-                    <span
-                      style={{
-                        textDecoration: "underline",
-                      }}
-                    >
-                      Se temperatur for de neste 72 timene
-                    </span>{" "}
-                    ⬇️
-                  </p>
+            <Fade right when={!showGraph} appear={true} opposite={true}>
+              <div className={"absolute"}>
+                <p
+                  style={{
+                    fontSize: "2.5rem",
+                    fontWeight: "bold",
+                    margin: "auto 2rem",
+                  }}
+                >
+                  {getTempMessage()}
                 </p>
-              </Fade>
-            )}
-            {showGraph && (
-              <Fade bottom when={showGraph} appear={true}>
-                <Graph air={predictedAirTemps} water={predictedWaterTemps} />
-              </Fade>
-            )}
+                <p
+                  style={{
+                    fontSize: "1.5rem",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    margin: "auto 2rem",
+                  }}
+                  onClick={() => setShowGraph(true)}
+                >
+                  ⬅{" "}
+                  <span
+                    style={{
+                      textDecoration: "underline",
+                    }}
+                  >
+                    Se temperatur for de neste 72 timene
+                  </span>
+                </p>
+              </div>
+            </Fade>
+            <Fade right when={showGraph} appear={true}>
+              <Graph air={predictedAirTemps} water={predictedWaterTemps} />
+            </Fade>
           </>
         ) : (
           <>
@@ -123,6 +131,34 @@ function App() {
           </Fade>
         )}
       </div>
+      <Fade bottom>
+        <div
+          style={{
+            justifySelf: "flex-end",
+            margin: "2.5rem auto",
+            maxWidth: "80%",
+          }}
+        >
+          <p style={{ fontFamily: "Playfair Display", fontWeight: 200 }}>
+            Made for the Experts in Teamwork course TMA4851 at NTNU in spring
+            2021
+          </p>
+          <p
+            style={{
+              fontFamily: "Playfair Display",
+              fontWeight: 100,
+              fontSize: "0.75rem",
+            }}
+          >
+            <a href={"https://github.com/AndersHoel"}>Anders Hoel</a>,{" "}
+            <a href={"https://github.com/henrilia"}>Henrik Lia</a>,{" "}
+            <a href={"https://github.com/hersle"}>Hermann Sletmoen</a>,{" "}
+            <a href={"https://github.com/hersle"}>Kaja Sofie Lundgaard</a>,{" "}
+            <a href={"https://github.com/Magssch"}>Magnus Eide Schjølberg</a>,{" "}
+            <a href={"https://github.com/Nora139"}>Nora Høve Erevik</a>,{" "}
+          </p>
+        </div>
+      </Fade>
     </div>
   );
 }
