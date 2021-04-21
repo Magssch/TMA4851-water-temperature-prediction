@@ -38,14 +38,14 @@ function App() {
       predictedWaterTemps.reduce((sum, temp) => sum + temp) /
       predictedWaterTemps.length;
 
-    setTimeout(() => setShowGraph(true), 5000);
+    setTimeout(() => setShowGraph(true), 3500);
 
     if (avgTemp < 10) {
-      return "Det er ganske kaldt i vannet nå! 🥶";
+      return "Det vil være ganske kaldt i vannet! 🥶";
     } else if (avgTemp < 17) {
-      return "Helt OK temperatur 👍";
+      return "Det blir helt OK vanntemperatur 👍";
     } else {
-      return "Veldig varmt, løp ut og bad! 🥵";
+      return "Fremover er det veldig varmt, løp ut og bad! 🥵";
     }
   };
 
@@ -57,15 +57,35 @@ function App() {
         </Fade>
         {predictionsLoaded ? (
           <>
-            <Fade bottom when={!showGraph} appear={true} opposite={true}>
-              <p>
-                <br />
-                <br style={{ fontSize: "2rem" }}>{getTempMessage()}</br>
-                <br />
-                <br />
-                <b style={{ fontSize: "1rem" }}>Finn ut hvorfor ⬇️</b>
-              </p>
-            </Fade>
+            {!showGraph && (
+              <Fade bottom when={!showGraph} appear={true} opposite={true}>
+                <p>
+                  <br />
+                  <p style={{ fontSize: "2.5rem", fontWeight: "bold" }}>
+                    {getTempMessage()}
+                  </p>
+                  <br />
+                  <br />
+                  <p
+                    style={{
+                      fontSize: "1.5rem",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => setShowGraph(true)}
+                  >
+                    <span
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      Se temperatur for de neste 72 timene
+                    </span>{" "}
+                    ⬇️
+                  </p>
+                </p>
+              </Fade>
+            )}
             {showGraph && (
               <Fade bottom when={showGraph} appear={true}>
                 <Graph air={predictedAirTemps} water={predictedWaterTemps} />
@@ -77,7 +97,9 @@ function App() {
             <br />
             <br />
             <Fade left when={!loading} appear={true}>
-              <h2>Hvordan er badetemperaturen i Korsvika i morgen?</h2>
+              <h2>
+                Hvordan er badetemperaturen i Korsvika de neste 72 timene?
+              </h2>
             </Fade>
             <br />
             <br />
