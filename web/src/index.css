@@ -14,7 +14,8 @@ body {
   background-color: linen;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+@font-face {
+  font-family: "Playfair Display";
+  src: local("Playfair Display"),
+    url(./assets/fonts/PlayfairDisplay-Italic.ttf) format("truetype");
 }

@@ -32,4 +32,6 @@
 h1 {
   color: rgb(52, 56, 56);
   font-family: "Playfair Display";
+  font-weight: 600;
+  transition: 1s;
 }

@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Button from "@bit/mui-org.material-ui.button";
 import CircularProgress from "@bit/mui-org.material-ui.circular-progress";
 import Fade from "react-reveal/Fade";
-import "@fontsource/playfair-display/900-italic.css";
 
 function App() {
   const requestPred = () => {
@@ -27,7 +26,6 @@ function App() {
       })
       .catch((err) => console.log(err));
   };
-  //useEffect(() => requestPred(), []);
   const [loading, setLoading] = useState(false);
   const [predictionsLoaded, setPredictionsLoaded] = useState(false);
   const [predictedWaterTemps, setPredictedWaterTemps] = useState([]);
@@ -37,7 +35,7 @@ function App() {
     <div className="App">
       <div className="predGraph">
         <Fade top appear={true}>
-          <h1>BadHer BETA</h1>
+          <h1>BadHer BETA 💧</h1>
         </Fade>
         {predictionsLoaded ? (
           <Fade bottom>
@@ -48,14 +46,16 @@ function App() {
             <br />
             <br />
             <Fade left when={!loading} appear={true}>
-              <h2>Er det digg å bade i Korsvika imorgen?</h2>
+              <h2>
+                Hvilken badetemperatur er det i Korsvika de neste 72 timene? 🌡️
+              </h2>
             </Fade>
             <br />
             <br />
             <Fade right when={!loading} appear={true}>
               <Button
                 variant="contained"
-                color="primary"
+                style={{ backgroundColor: "#2196f3", color: "white" }}
                 onClick={() => requestPred()}
               >
                 Få svaret
@@ -65,7 +65,10 @@ function App() {
         )}
         {loading && (
           <Fade bottom when={loading} appear={true}>
-            <CircularProgress variant={"indeterminate"} />
+            <CircularProgress
+              style={{ color: "#2196f3" }}
+              variant={"indeterminate"}
+            />
           </Fade>
         )}
       </div>
