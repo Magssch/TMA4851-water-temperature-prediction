@@ -62,7 +62,7 @@ exports.getPred = functions
   .runWith(runtimeOpts)
   .https.onRequest(async (request, response) => {
     console.log("Fetching data");
-    const look_back = 30;
+    const look_back = 18;
 
     let wind_forecast = get_data.forecast(63.446521, 10.336418);
 
