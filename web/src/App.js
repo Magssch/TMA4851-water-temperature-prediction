@@ -41,11 +41,11 @@ function App() {
     setTimeout(() => setShowGraph(true), 4000);
 
     if (avgTemp < 10) {
-      return "Det vil være ganske kaldt i vannet! 🥶";
+      return "Det vil være ganske kaldt i vannet... 🥶";
     } else if (avgTemp < 17) {
-      return "Det blir helt OK vanntemperatur 👍";
+      return "Det blir helt OK vanntemperatur... 👍";
     } else {
-      return "Fremover er det veldig varmt, løp ut og bad! 🥵";
+      return "Fremover er det veldig varmt, løp ut og bad... 🥵";
     }
   };
 
