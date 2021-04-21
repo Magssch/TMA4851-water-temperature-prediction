@@ -7,6 +7,7 @@ The ML model consists of time-series data fed through a single convolutional lay
 
 # Team members:
 * Anders Hoel
+* Herman Sletmoen
 * Nora Høva Erevik
 * Kaja Sofie Lundgaard
 * Henrik Lia
