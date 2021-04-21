@@ -38,7 +38,7 @@ function App() {
       predictedWaterTemps.reduce((sum, temp) => sum + temp) /
       predictedWaterTemps.length;
 
-    //setTimeout(() => setShowGraph(true), 35000);
+    setTimeout(() => setShowGraph(true), 4000);
 
     if (avgTemp < 10) {
       return "Det vil være ganske kaldt i vannet! 🥶";
