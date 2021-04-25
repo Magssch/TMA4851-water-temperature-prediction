@@ -29,6 +29,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [predictionsLoaded, setPredictionsLoaded] = useState(false);
   const [showGraph, setShowGraph] = useState(false);
+  const [removeMiddleNode, setRemoveMiddleNode] = useState(false);
   const [predictedWaterTemps, setPredictedWaterTemps] = useState([]);
   const [predictedAirTemps, setPredictedAirTemps] = useState([]);
 
@@ -39,6 +40,7 @@ function App() {
       predictedWaterTemps.length;
 
     setTimeout(() => setShowGraph(true), 4000);
+    setTimeout(() => setRemoveMiddleNode(true), 5500);
 
     if (avgTemp < 10) {
       return "Det vil være ganske kaldt i vannet... 🥶";
@@ -65,37 +67,39 @@ function App() {
       <div className="predGraph">
         {predictionsLoaded ? (
           <>
-            <Fade right when={!showGraph} appear={true} opposite={true}>
-              <div className={"absolute"}>
-                <p
-                  style={{
-                    fontSize: "2.5rem",
-                    fontWeight: "bold",
-                    margin: "auto 2rem",
-                  }}
-                >
-                  {getTempMessage()}
-                </p>
-                <p
-                  style={{
-                    fontSize: "1.5rem",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                    margin: "auto 2rem",
-                  }}
-                  onClick={() => setShowGraph(true)}
-                >
-                  ⬅{" "}
-                  <span
+            {!removeMiddleNode && (
+              <Fade right when={!showGraph} appear={true} opposite={true}>
+                <div className={"absolute"}>
+                  <p
                     style={{
-                      textDecoration: "underline",
+                      fontSize: "2.5rem",
+                      fontWeight: "bold",
+                      margin: "auto 2rem",
                     }}
                   >
-                    Se temperatur for de neste 72 timene
-                  </span>
-                </p>
-              </div>
-            </Fade>
+                    {getTempMessage()}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "1.5rem",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      margin: "auto 2rem",
+                    }}
+                    onClick={() => setShowGraph(true)}
+                  >
+                    ⬅{" "}
+                    <span
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      Se temperatur for de neste 72 timene
+                    </span>
+                  </p>
+                </div>
+              </Fade>
+            )}
             <Fade right when={showGraph} appear={true}>
               <Graph air={predictedAirTemps} water={predictedWaterTemps} />
             </Fade>
