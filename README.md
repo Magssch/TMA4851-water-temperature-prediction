@@ -3,7 +3,7 @@ Repository for our project in Experts in Teamwork (EiT) at NTNU. The web app ser
 
 The ML model consists of time-series data fed through a single convolutional layer which is then fed into two bidirectional layers of LSTM. This structure is commonly known as the "CNN-LSTM" model.
 
-[Live demo](https://tma4851-bathing-temp-pred.web.app/)
+[Live demo](https://korsvika-water-temp.web.app/)
 
 # Team members:
 * Anders Hoel
