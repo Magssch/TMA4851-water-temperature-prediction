@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "tma4851-bathing-temp-pred"
+  },
+  "targets": {
+    "tma4851-bathing-temp-pred": {
+      "hosting": {
+        "korsvika": [
+          "korsvika-water-temp"
+        ]
+      }
+    }
   }
 }
