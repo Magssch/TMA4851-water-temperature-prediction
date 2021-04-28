@@ -94,13 +94,13 @@ function add_processed_columns(data) {
     data[idx].month = min_max_transform(new Date(row.time).getMonth(), 6, 11);
     data[idx].windx = min_max_transform(
       row.wind_speed * Math.sin((2 * Math.PI * row.wind_direction) / 360),
-      -3.55967478,
+      -4.49465491,
       3.4768627
     );
     data[idx].windy = min_max_transform(
       row.wind_speed * Math.cos((2 * Math.PI * row.wind_direction) / 360),
       -2.85594248,
-      3.2
+      3.39534042
     );
   });
   return data;
@@ -194,9 +194,9 @@ module.exports = async function (
     row.relative_humidity = min_max_transform(
       row.relative_humidity,
       2.9e1,
-      1.0e2
+      9.9e1
     );
-    row.air_temperature = min_max_transform(row.air_temperature, -6.0, 3.21e1);
+    row.air_temperature = min_max_transform(row.air_temperature, -6.1, 3.14e1);
   });
 
   let dates = data.map((row) => row.time);

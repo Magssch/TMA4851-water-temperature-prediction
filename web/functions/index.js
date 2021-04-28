@@ -122,10 +122,10 @@ exports.getPred = functions
           JSON.stringify({
             water: r
               .slice(look_back, look_back + 73)
-              .map((value) => min_max_inverse_transform(value, 3.6, 2.14e1)),
+              .map((value) => min_max_inverse_transform(value, 3.4, 1.93e1)),
             air: outputted_air_temps
               .slice(0, 73)
-              .map((row) => min_max_inverse_transform(row, -6.0, 3.21e1)),
+              .map((row) => min_max_inverse_transform(row, -6.1, 3.14e1)),
             dates: outputted_dates,
           })
         );
