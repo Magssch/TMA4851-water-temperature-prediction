@@ -43,7 +43,7 @@ function format_input(
     input.push([]);
     outputted_dates.push(dates[i + look_back]);
     outputted_air_temps.push(weather_data[i + look_back][0]);
-    for (let j = i; j < i + look_back; ++j) {
+    for (let j = i + look_back - 1; j >= i; --j) {
       input[i].push(weather_data[j]);
     }
   }
@@ -121,7 +121,7 @@ exports.getPred = functions
         return response.send(
           JSON.stringify({
             water: r
-              .slice(look_back, look_back + 73)
+              .slice(0, 73)
               .map((value) => min_max_inverse_transform(value, 3.4, 1.93e1)),
             air: outputted_air_temps
               .slice(0, 73)
