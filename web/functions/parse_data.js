@@ -1,3 +1,5 @@
+const Spline = require("cubic-spline");
+
 function add_hours(date, dt) {
   return new Date(date.setHours(date.getHours() + dt));
 }
@@ -7,9 +9,23 @@ function parse_tide_date(date) {
 }
 
 function interpolate_forecast(forecast) {
-  function _interpolate(from, to, key, dt) {
-    return (to[key] - from[key]) * dt + from[key];
-  }
+  let time = forecast.map((el) => new Date(el.time));
+  let air_temp_spline = new Spline(
+    time,
+    forecast.map((el) => el.air_temperature)
+  );
+  let rel_hum_spline = new Spline(
+    time,
+    forecast.map((el) => el.relative_humidity)
+  );
+  let wind_speed_spline = new Spline(
+    time,
+    forecast.map((el) => el.wind_speed)
+  );
+  let wind_direction_spline = new Spline(
+    time,
+    forecast.map((el) => el.wind_direction)
+  );
 
   let new_forecast = [];
   for (let i = 1; i < forecast.length; ++i) {
@@ -19,31 +35,14 @@ function interpolate_forecast(forecast) {
     new_forecast.push(forecast[i - 1]);
 
     for (let h = 1; h < date_diff; ++h) {
+      let current_time = add_hours(new Date(forecast[i - 1].time), h);
       new_forecast.push({
-        time: add_hours(new Date(forecast[i - 1].time), h),
-        air_temperature: _interpolate(
-          forecast[i - 1],
-          forecast[i],
-          "air_temperature",
-          h / date_diff
-        ),
-        relative_humidity: _interpolate(
-          forecast[i - 1],
-          forecast[i],
-          "relative_humidity",
-          h / date_diff
-        ),
-        wind_speed: _interpolate(
-          forecast[i - 1],
-          forecast[i],
-          "wind_speed",
-          h / date_diff
-        ),
-        wind_direction: _interpolate(
-          forecast[i - 1],
-          forecast[i],
-          "wind_direction",
-          h / date_diff
+        time: current_time,
+        air_temperature: air_temp_spline.at(new Date(current_time)),
+        relative_humidity: rel_hum_spline.at(new Date(current_time)),
+        wind_speed: wind_speed_spline.at(new Date(current_time)),
+        wind_direction: wind_direction_spline.at(
+          new Date(current_time)
         ),
       });
     }
