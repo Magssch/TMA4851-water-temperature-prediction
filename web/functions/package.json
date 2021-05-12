@@ -17,6 +17,7 @@
     "@tensorflow/tfjs-node": "^3.3.0",
     "axios": "^0.21.1",
     "cors": "^2.8.5",
+    "cubic-spline": "^3.0.3",
     "firebase-admin": "^9.2.0",
     "firebase-functions": "^3.13.2",
     "xml2json": "^0.12.0"
